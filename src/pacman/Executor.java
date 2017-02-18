@@ -24,6 +24,8 @@ import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
+import pacman.entries.pacman.Gene;
+import pacman.entries.pacman.GeneticAlgorithm;
 import pacman.entries.pacman.MyPacMan;
 import pacman.game.Game;
 import pacman.game.GameView;
@@ -50,10 +52,9 @@ public class Executor
 
 		
 		//run multiple games in batch mode - good for testing.
-		int numTrials=10;
-//		exec.runExperiment(new RandomPacMan(),new RandomGhosts(),numTrials);
+	//	int numTrials=10;
+	//	exec.runExperiment(new RandomPacMan(),new RandomGhosts(),numTrials);
 
-		
 		/*
 		//run a game in synchronous mode: game waits until controllers respond.
 		int delay=5;
@@ -67,7 +68,7 @@ public class Executor
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);
-		exec.runGameTimed(new MyPacMan(), new StarterGhosts(), visual);
+		exec.runGameTimed(new MyPacMan(GeneticAlgorithm()), new StarterGhosts(), visual);
 		//*/
 		
 		/*
@@ -122,6 +123,55 @@ public class Executor
 		}
 		
 		System.out.println(avgScore/trials);
+    }
+
+    // Genetic Algorithm maxA testing method
+    public static Gene GeneticAlgorithm() {
+        // Initializing the population (we chose 500 genes for the population,
+        // but you can play with the population size to try different approaches)
+        GeneticAlgorithm population = new GeneticAlgorithm(GeneticAlgorithm.POPULATION_SIZE);
+        // For the sake of this sample, evolution goes on forever.
+        // If you wish the evolution to halt (for instance, after a number of
+        //   generations is reached or the maximum fitness has been achieved),
+        //   this is the place to make any such checks
+
+        for (int generationCount = 0; generationCount < 1000 ; generationCount++) {
+            // --- evaluate current generation:
+            population.evaluateGeneration();
+            // --- print results here:
+            // we choose to print the average fitness,
+            // as well as the maximum and minimum fitness
+            // as part of our progress monitoring
+            float avgFitness=0.f;
+            float minFitness=Float.POSITIVE_INFINITY;
+            float maxFitness=Float.NEGATIVE_INFINITY;
+            String bestIndividual="";
+            String worstIndividual="";
+            for(int i = 0; i < population.size(); i++){
+                float currFitness = population.getGene(i).getFitness();
+                avgFitness += currFitness;
+                if(currFitness < minFitness){
+                    minFitness = currFitness;
+                    worstIndividual = population.getGene(i).getPhenotype();
+                }
+                if(currFitness > maxFitness){
+                    maxFitness = currFitness;
+                    bestIndividual = population.getGene(i).getPhenotype();
+                }
+            }
+            if(population.size()>0){ avgFitness = avgFitness/population.size(); }
+            String output = "Generation: " + generationCount;
+            output += "\t AvgFitness: " + avgFitness;
+            output += "\t MinFitness: " + minFitness + " (" + worstIndividual +")";
+            output += "\t MaxFitness: " + maxFitness + " (" + bestIndividual +")";
+            System.out.println(output);
+
+            // produce next generation:
+            population.produceNextGeneration();
+        }
+
+        population.evaluateGeneration();
+        return population.getGene(GeneticAlgorithm.POPULATION_SIZE - 1);
     }
 	
 	/**
