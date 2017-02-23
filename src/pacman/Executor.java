@@ -164,6 +164,11 @@ public class Executor
             output += "\t AvgFitness: " + avgFitness;
             output += "\t MinFitness: " + minFitness + " (" + worstIndividual +")";
             output += "\t MaxFitness: " + maxFitness + " (" + bestIndividual +")";
+    //      output += "\n Left: " + MyPacMan.choice.get(MOVE.LEFT);
+	//		output += "\n Right: " + MyPacMan.choice.get(MOVE.RIGHT);
+	//		output += "\n Down: " + MyPacMan.choice.get(MOVE.DOWN);
+	//		output += "\n Up: " + MyPacMan.choice.get(MOVE.UP);
+	//		output += "\n Neutral: " + MyPacMan.choice.get(MOVE.NEUTRAL);
             System.out.println(output);
 
             // produce next generation:

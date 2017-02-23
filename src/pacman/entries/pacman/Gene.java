@@ -89,12 +89,6 @@ public class Gene implements Comparable<Gene>{
             }
 
         }
-
-
-
-
-
-
         return result;
     }
 

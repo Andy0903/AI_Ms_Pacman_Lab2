@@ -8,7 +8,7 @@ import pacman.game.Constants;
  */
 public class Neuron {
 
-    public static final  int NUMBER_OF_INPUTS = 2;
+    public static final  int NUMBER_OF_INPUTS = 12;
     float[] weights;
     float threshold;
 
@@ -32,21 +32,21 @@ public class Neuron {
         this.threshold = threshold;
     }
 
-    public boolean predictMove(DataTuple input) {
+    public float predictMove(DataTuple input) {
 
         float[] inputs = new float[] {
                 (float)input.normalizeLevel(input.currentLevel),
                 (float)input.normalizePosition(input.pacmanPosition),
-            //    (float)input.normalizeNumberOfPills(input.numOfPillsLeft),
-            //    (float)input.normalizeNumberOfPowerPills(input.numOfPowerPillsLeft),
-            //    (float)input.normalizeBoolean(input.isBlinkyEdible),
-            //    (float)input.normalizeBoolean(input.isInkyEdible),
-            //    (float)input.normalizeBoolean(input.isPinkyEdible),
-            //    (float)input.normalizeBoolean(input.isSueEdible),
-            //    input.blinkyDir.ordinal() / (float)Constants.MOVE.values().length,
-            //    input.inkyDir.ordinal() / (float)Constants.MOVE.values().length,
-            //    input.pinkyDir.ordinal() / (float)Constants.MOVE.values().length,
-            //    input.sueDir.ordinal() / (float)Constants.MOVE.values().length
+                (float)input.normalizeNumberOfPills(input.numOfPillsLeft),
+                (float)input.normalizeNumberOfPowerPills(input.numOfPowerPillsLeft),
+                (float)input.normalizeBoolean(input.isBlinkyEdible),
+                (float)input.normalizeBoolean(input.isInkyEdible),
+                (float)input.normalizeBoolean(input.isPinkyEdible),
+                (float)input.normalizeBoolean(input.isSueEdible),
+                input.blinkyDir.ordinal() / (float)Constants.MOVE.values().length,
+                input.inkyDir.ordinal() / (float)Constants.MOVE.values().length,
+                input.pinkyDir.ordinal() / (float)Constants.MOVE.values().length,
+                input.sueDir.ordinal() / (float)Constants.MOVE.values().length
         };
 
         float sum = 0;
@@ -54,8 +54,11 @@ public class Neuron {
             sum += inputs[i] * weights[i];
         }
 
-        sum = sum / NUMBER_OF_INPUTS;
+        //sum = sum / NUMBER_OF_INPUTS;
 
-        return sum > threshold;
+        sum -= threshold;
+        float sigmoid = (float) (1 / (1 + Math.pow(Math.E, -sum)));
+
+        return sigmoid;
     }
 }

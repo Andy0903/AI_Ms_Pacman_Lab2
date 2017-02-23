@@ -24,7 +24,7 @@ import static pacman.game.Constants.DELAY;
 public class GeneticAlgorithm {
     // --- constants
    public static int CHROMOSOME_SIZE= (Neuron.NUMBER_OF_INPUTS + 1) * MyPacMan.NUMBER_OF_NEURONS; // +1 for threshold.
-   public static int POPULATION_SIZE=2000;
+   public static int POPULATION_SIZE=10;
 
     // --- variables:
 
@@ -65,7 +65,7 @@ public class GeneticAlgorithm {
     }
 
     private float CalculateFitness(Gene g) {
-        int trials = 3;
+        int trials = 20;
         float avgScore=0;
 
         Random rnd = new Random(0);
@@ -103,7 +103,7 @@ public class GeneticAlgorithm {
     public void produceNextGeneration(){
         // use one of the offspring techniques suggested in class (also applying any mutations) HERE
 
-        int numberToKill = (int)(POPULATION_SIZE * 0.98);
+        int numberToKill = (int)(POPULATION_SIZE * 0.6);
         int numbersAlive = POPULATION_SIZE - numberToKill;
 
         Collections.sort(mPopulation);  //Ascending Order.
