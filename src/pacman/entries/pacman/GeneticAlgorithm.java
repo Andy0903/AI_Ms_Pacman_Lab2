@@ -61,7 +61,7 @@ public class GeneticAlgorithm {
             // evaluation of the fitness function for each gene in the population goes HERE
       //      mPopulation.get(i).setFitness(CalculateFitness(mPopulation.get(i)));
       //  }
-        mPopulation.parallelStream().forEach((a)->a.setFitness(CalculateFitness(a)));
+        mPopulation.stream().forEach((a)->a.setFitness(CalculateFitness(a)));
     }
 
     private float CalculateFitness(Gene g) {
