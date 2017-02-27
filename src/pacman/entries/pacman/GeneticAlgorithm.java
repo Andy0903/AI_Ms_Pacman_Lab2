@@ -23,8 +23,8 @@ import static pacman.game.Constants.DELAY;
 
 public class GeneticAlgorithm {
     // --- constants
-   public static int CHROMOSOME_SIZE= (Neuron.NUMBER_OF_INPUTS + 1) * MyPacMan.NUMBER_OF_NEURONS; // +1 for threshold.
-   public static int POPULATION_SIZE=10;
+   public static int CHROMOSOME_SIZE= (MyPacMan.NUMBER_OF_INPUTS + 1) * MyPacMan.NUMBER_OF_HIDDEN + (MyPacMan.NUMBER_OF_HIDDEN + 1) * MyPacMan.NUMBER_OF_OUTPUT; // +1 for threshold.
+   public static int POPULATION_SIZE= 100;
 
     // --- variables:
 
@@ -65,29 +65,32 @@ public class GeneticAlgorithm {
     }
 
     private float CalculateFitness(Gene g) {
-        int trials = 20;
-        float avgScore=0;
+        if (g.mFitness == 0){
+            int trials = 2;
+            float avgScore=0;
 
-        Random rnd = new Random(0);
-        Game game;
+            Random rnd = new Random(0);
+            Game game;
 
-        for(int i=0;i<trials;i++)
-        {
-            game=new Game(rnd.nextLong());
-            MyPacMan pac = new MyPacMan(g);
-            RandomGhosts ghosts = new RandomGhosts();
-
-            while(!game.gameOver())
+            for(int i=0;i<trials;i++)
             {
-                game.advanceGame(pac.getMove(game.copy(),System.currentTimeMillis()+DELAY),
-                        ghosts.getMove(game.copy(),System.currentTimeMillis()+DELAY));
+                game=new Game(rnd.nextLong());
+                MyPacMan pac = new MyPacMan(g);
+                RandomGhosts ghosts = new RandomGhosts();
+
+                while(!game.gameOver())
+                {
+                    game.advanceGame(pac.getMove(game.copy(),System.currentTimeMillis()+DELAY),
+                            ghosts.getMove(game.copy(),System.currentTimeMillis()+DELAY));
+                }
+
+                avgScore+=game.getScore();
+                //System.out.println(i+"\t"+game.getScore());
             }
 
-            avgScore+=game.getScore();
-            //System.out.println(i+"\t"+game.getScore());
+            g.mFitness = avgScore/trials;
         }
-
-        return avgScore/trials;
+        return g.mFitness;
     }
 
 
@@ -98,8 +101,6 @@ public class GeneticAlgorithm {
      * If you want to use mutation, this function is where any mutation chances are rolled and mutation takes place.
      */
 
-    boolean sak2 = false;
-
     public void produceNextGeneration(){
         // use one of the offspring techniques suggested in class (also applying any mutations) HERE
 
@@ -107,30 +108,10 @@ public class GeneticAlgorithm {
         int numbersAlive = POPULATION_SIZE - numberToKill;
 
         Collections.sort(mPopulation);  //Ascending Order.
-        if (sak2 == false)
-        {
-            sak2 = true;
-            mPopulation.get(mPopulation.size()-1).sak = true;
-        }
-
-        for (int m = 0; m < mPopulation.size(); m++) {
-            if (mPopulation.get(m).sak)
-            {
-                System.out.println(mPopulation.get(m).getFitness());
-            }
-        }
-
-
         mPopulation.subList(0, numberToKill).clear();
 
         for (int i = 0; i < numberToKill / 2; i++) {
           Gene[] children = mPopulation.get(i % numbersAlive).reproduce(mPopulation.get(ThreadLocalRandom.current().nextInt(numbersAlive)));
-     //       Gene[] children = new Gene[2];
-     //       children[0] = new Gene();
-     //       children[1] = new Gene();
-
-     //       children[0].randomizeChromosome();
-     //       children[1].randomizeChromosome();
 
           if (i % 10 == 0) // 10% chance of mutation.
           {

@@ -152,11 +152,11 @@ public class Executor
                 avgFitness += currFitness;
                 if(currFitness < minFitness){
                     minFitness = currFitness;
-                    worstIndividual = population.getGene(i).getPhenotype();
+                  //  worstIndividual = population.getGene(i).getPhenotype();
                 }
                 if(currFitness > maxFitness){
                     maxFitness = currFitness;
-                    bestIndividual = population.getGene(i).getPhenotype();
+                   // bestIndividual = population.getGene(i).getPhenotype();
                 }
             }
             if(population.size()>0){ avgFitness = avgFitness/population.size(); }

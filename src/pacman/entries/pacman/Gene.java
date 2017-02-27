@@ -4,7 +4,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Gene implements Comparable<Gene>{
     // --- variables:
-    boolean sak = false;
     /**
      * Fitness evaluates to how "close" the current gene is to the
      * optimal solution (i.e. contains only 1s in its chromosome)

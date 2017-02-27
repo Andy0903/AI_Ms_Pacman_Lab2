@@ -2,6 +2,7 @@ package pacman.entries.pacman;
 
 import dataRecording.DataTuple;
 import pacman.controllers.Controller;
+import pacman.game.Constants;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
@@ -18,42 +19,74 @@ import static pacman.game.Constants.MOVE.NEUTRAL;
  */
 public class MyPacMan extends Controller<MOVE>
 {
-    public static final int NUMBER_OF_NEURONS = MOVE.values().length;
-    private Neuron[] neurons = new Neuron[NUMBER_OF_NEURONS];
+    public static final int NUMBER_OF_INPUTS = 13;
+    public static final int NUMBER_OF_HIDDEN = (NUMBER_OF_INPUTS);
+    public static final int NUMBER_OF_OUTPUT = MOVE.values().length;
+    private Neuron[] hidden = new Neuron[NUMBER_OF_HIDDEN];
+    private Neuron[] output = new Neuron[NUMBER_OF_OUTPUT];
 
     public MyPacMan(Gene g)
     {
-        //for (int s = 0; s < g.mChromosome.length; s += Neuron.NUMBER_OF_INPUTS + 1) {   //for each neuron in gene (+1 for threshold)
-            for (int i = 0; i < neurons.length; i++) {
-                int srcPos = (Neuron.NUMBER_OF_INPUTS + 1) * i;
-                float[] weights = new float[Neuron.NUMBER_OF_INPUTS];
-                System.arraycopy(g.mChromosome, srcPos, weights, 0, weights.length);
-                float threshold = g.mChromosome[srcPos + weights.length];
-                neurons[i] = new Neuron(weights, threshold);
-            }
+        for (int i = 0; i < hidden.length; i++) {
+            int srcPos = (NUMBER_OF_INPUTS + 1) * i;
+            float[] weights = new float[NUMBER_OF_INPUTS];
+            System.arraycopy(g.mChromosome, srcPos, weights, 0, weights.length);
+            float threshold = g.mChromosome[srcPos + weights.length];
+            hidden[i] = new Neuron(NUMBER_OF_INPUTS, weights, threshold);
+        }
+
+        for (int i = 0; i < output.length; i++) {
+            int srcPos = (NUMBER_OF_HIDDEN + 1) * i + NUMBER_OF_HIDDEN * (NUMBER_OF_INPUTS + 1);
+            float[] weights = new float[NUMBER_OF_HIDDEN];
+            System.arraycopy(g.mChromosome, srcPos, weights, 0, weights.length);
+            float threshold = g.mChromosome[srcPos + weights.length];
+            output[i] = new Neuron(NUMBER_OF_HIDDEN, weights, threshold);
+        }
     }
 
     public static HashMap<MOVE, Integer> choice = new HashMap<MOVE, Integer>();
 
 	public MOVE getMove(Game game, long timeDue) 
 	{
-		//Place your game logic here to play the game as Ms Pac-Man
-		//Hämta input, skicka in till predict metoden. Ta outputten och gör movet som den sa. Här ska du ha 5 neuroner.
-
-        DataTuple input = new DataTuple(game, NEUTRAL);
-        //ArrayList<MOVE> moves = new ArrayList<>();
         float biggestVal = Float.NEGATIVE_INFINITY;
         MOVE move = NEUTRAL;
 
-        for (int i = 0; i < neurons.length; i++) {
-            float moveVal = neurons[i].predictMove(input);
+        DataTuple input = new DataTuple(game, NEUTRAL);
+
+        float[] inputs = new float[] {
+                //(float)input.normalizeLevel(input.currentLevel),
+                (float)input.normalizePosition(input.pacmanPosition),
+                //(float)input.normalizeNumberOfPills(input.numOfPillsLeft),
+                //(float)input.normalizeNumberOfPowerPills(input.numOfPowerPillsLeft),
+                (float)input.normalizeBoolean(input.isBlinkyEdible),
+                (float)input.normalizeBoolean(input.isInkyEdible),
+                (float)input.normalizeBoolean(input.isPinkyEdible),
+                (float)input.normalizeBoolean(input.isSueEdible),
+                input.blinkyDir.ordinal() / (float) Constants.MOVE.values().length,
+                input.inkyDir.ordinal() / (float)Constants.MOVE.values().length,
+                input.pinkyDir.ordinal() / (float)Constants.MOVE.values().length,
+                input.sueDir.ordinal() / (float)Constants.MOVE.values().length,
+                //(float)Math.abs(input.normalizeDistance(input.blinkyDist)),
+                //(float)Math.abs(input.normalizeDistance(input.inkyDist)),
+                //(float)Math.abs(input.normalizeDistance(input.pinkyDist)),
+                //(float)Math.abs(input.normalizeDistance(input.sueDist)),
+                (float)input.normalizePosition(game.getGhostCurrentNodeIndex(Constants.GHOST.BLINKY)),
+                (float)input.normalizePosition(game.getGhostCurrentNodeIndex(Constants.GHOST.INKY)),
+                (float)input.normalizePosition(game.getGhostCurrentNodeIndex(Constants.GHOST.PINKY)),
+                (float)input.normalizePosition(game.getGhostCurrentNodeIndex(Constants.GHOST.SUE))
+        };
+
+
+
+        float[] hiddenOutputs = new float[hidden.length];
+        for (int i = 0; i < hidden.length; i++) {
+            hiddenOutputs[i] = hidden[i].predictMove(inputs);
+        }
+
+        for (int i = 0; i < output.length; i++) {
+            float moveVal = output[i].predictMove(hiddenOutputs);
             if (moveVal > biggestVal) {
                 move = MOVE.values()[i];
-
-                if (i != 0)
-                {
-                    int a = 5;
-                }
                 biggestVal = moveVal;
             }
         }
